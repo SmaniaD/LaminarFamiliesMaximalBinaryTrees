@@ -3,8 +3,9 @@
 This Lean 4 project formalizes a mathematical structure
 **BinaryTreeWithRootandTops**, which models a rooted, ordered
 binary tree whose nodes are pairs of disjoint, nonempty, finite
-subsets of a finite ground set of “children,” together with a
-distinguished set of “tops” acting as the leaves of the tree.
+subsets of a finite Childs set of “children,” together with a
+distinguished set of “tops” acting as the leaves of the tree. 
+This is  closely related with laminar families of subsets of Childs.
 
 It is inspired by the accompanying LaTeX document `manual.tex`, which
 provides diagrams and detailed formal notation.
@@ -26,7 +27,8 @@ provides diagrams and detailed formal notation.
   >
   > Any Childs set of at least two elements can be turned into
   > a `BinaryTreeWithRootandTops` whose `Tops` equals the
-  > entire ground set.
+  > entire ground set. This is related to the existence of maximal
+  >  laminar families of subsets of the finite set Childs. 
 -  One explicit example of BinaryTreeWithRootandTops is 
 
 Childs = {1,2,3,4,5,6,7}
