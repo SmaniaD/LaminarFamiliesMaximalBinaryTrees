@@ -37,7 +37,7 @@ Childs = {1,2,3,4,5,6,7}
 
 Root = ({1,2,3}, {4,5,6,7})
 
-Branches including:
+Branches:
 
 ({1,2,3},{4,5,6,7})
 
@@ -54,11 +54,12 @@ Branches including:
 Tops = {1,2,3,4,5,6,7}
 
 Its tree structure is:
-
-                                ({1,2,3}, {4,5,6,7}) root 
+                                  {1,2,3,4,5,6,7} Childs
+                                          |
+                                ({1,2,3}, {4,5,6,7}) root <- branch
                                /                       \
-                    ({1,2}, {3})                  ({4,5}, {6,7})
+                    ({1,2}, {3}) <-branch            ({4,5}, {6,7}) <-branch
                       /         \                    /           \
-            ({1}, {2})           3                ({4}, {5})   ({6}, {7})
+    branch->({1}, {2})           3        branch->({4}, {5})   ({6}, {7}) <-branch
               /     \          (top)              /       \     /       \
            1(top)  2(top)                   4(top)    5(top) 6(top)   7(top)
