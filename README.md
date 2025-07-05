@@ -30,8 +30,9 @@ provides diagrams and detailed formal notation.
   > Any finite set `Childs` of at least two elements has a 
   > a `BinaryTreeWithRootandTops` whose `Tops` equals the
   > entire  set `Childs` (a maximal tree). This is related to the existence of maximal
-  >  laminar families of subsets of the finite set `Childs`. 
--  One explicit example of maximal BinaryTreeWithRootandTops is 
+  >  laminar families of subsets of the finite set `Childs`.
+  
+## One explicit example of maximal BinaryTreeWithRootandTops 
 
 Childs = {1,2,3,4,5,6,7}
 
