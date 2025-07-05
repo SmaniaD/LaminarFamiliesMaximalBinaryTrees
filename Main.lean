@@ -27,7 +27,8 @@ open Lean.Elab.Tactic
 
 open scoped Classical
 
-/-- Para qualquer `C` e `a`, temos `C ⊆ {a} ∪ (C \ {a})`. -/
+
+/-- teste Para qualquer `C` e `a`, temos `C ⊆ {a} ∪ (C \ {a})`. -/
 lemma subset_singleton_union_sdiff [DecidableEq α] (C : Finset α) (a : α) :
     C ⊆ ({a} : Finset α) ∪ (C \ {a}) := by
   intro x hxC                      -- escolha x ∈ C
