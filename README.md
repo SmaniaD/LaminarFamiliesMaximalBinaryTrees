@@ -69,5 +69,5 @@ Its tree structure is:
               /     \          (top)              /       \     /       \
            1(top)  2(top)                   4(top)    5(top) 6(top)   7(top)
 
- This  is a rooted tree-representationrelated  a  maximal laminar family
+ This  is a rooted tree-representation of  the  maximal laminar family
  {1,2,3,4,5,6,7}, {1,2,3}, {4,5,6,7}, {1,2}, {4,5}, {6,7}, {1},{2},{3},{4},{5},{6},{7}
