@@ -226,8 +226,9 @@ for tree = {
   font=\small
 }
 % ---------------------- tree specification -------------------------
+[{$\texttt{Childs} = \{1,2,3,4,5,6,7\}$}
 [{$\texttt{Root} = (\{1,2,3\},\{4,5,6,7\})$ \\ $\in \texttt{Branches}$}         % ← Root
-  [{$(\{1,2\},\{3\})$}               % first split of left block
+  [{$(\{1,2\},\{3\}) $ \\ $\in \texttt{Branches}$}               % first split of left block
     [{$3$ \\ $\in \texttt{Tops}$}]    % singleton leaf = top
   ]
   [{$(\{4,5\},\{6,7\})$ \\ $\in \texttt{Branches}$ }             % first split of right block
@@ -240,6 +241,7 @@ for tree = {
       [{$7$ \\ $\in \texttt{Tops}$}]
     ]
   ]
+]
 ]
 \end{forest}
 
@@ -279,8 +281,9 @@ for tree = {
   font=\small
 }
 % ---------------------- tree specification -------------------------
+[{$\texttt{Childs} = \{1,2,3,4,5,6,7\}$}
 [{$\texttt{Root} = (\{1,2,3\},\{4,5,6,7\})$ \\ $\in \texttt{Branches}$}         % ← Root
-  [{$(\{1,2\},\{3\})$}               % first split of left block
+  [{$(\{1,2\},\{3\})$ \\ $\in \texttt{Branches}$}               % first split of left block
     [{$(\{1\},\{2\}) $ \\ $\in \texttt{Branches}$}
       [{$1$ \\ $\in \texttt{Tops}$}]
       [{$2$ \\ $\in \texttt{Tops}$}]
@@ -297,6 +300,7 @@ for tree = {
       [{$7$ \\ $\in \texttt{Tops}$}]
     ]
   ]
+]
 ]
 \end{forest}
 
