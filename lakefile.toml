@@ -1,0 +1,16 @@
+name = "LaminarFamiliesMaximalBinaryTrees"
+version = "0.1.0"
+defaultTargets = ["laminarfamiliesmaximalbinarytrees"]
+
+[[lean_lib]]
+name = "LaminarFamiliesMaximalBinaryTrees"
+
+[[lean_exe]]
+name = "laminarfamiliesmaximalbinarytrees"
+root = "Main"
+
+[[require]]
+name  = "mathlib"
+scope = "leanprover-community"
+rev   = "v4.22.0-rc2"
+
