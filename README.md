@@ -27,7 +27,7 @@ provides diagrams and detailed formal notation.
 - Existence theorem:
   > `exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two`
   >
-  > Any finite set `Childs` of at least two elements has a 
+  > Any finite set `Childs` with at least two elements has a 
   > a `BinaryTreeWithRootandTops` whose `Tops` equals the
   > entire  set `Childs` (a maximal tree). This is related to the existence of maximal
   >  laminar families of subsets of the finite set `Childs`.
