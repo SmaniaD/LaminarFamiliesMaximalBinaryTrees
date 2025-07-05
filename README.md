@@ -7,7 +7,10 @@ subsets of a finite set `Childs` of “children,” together with a
 distinguished set of “tops” acting as the leaves of the tree. 
 This is  closely related with laminar families
 (https://en.wikipedia.org/wiki/Laminar_set_family ) of subsets
-of the set Childs.
+of the set Childs:  Every laminar family of subsets has a rooted 
+tree-representation, see Alexander Schrijver. Combinatorial 
+Optimization: Polyhedra  and Efficiency, 2004,page 214, Theorem 
+13.21.
 
 See the accompanying LaTeX document `manual.tex`, which
 provides diagrams and detailed formal notation.
@@ -29,8 +32,9 @@ provides diagrams and detailed formal notation.
   >
   > Any finite set `Childs` with at least two elements has a 
   > a `BinaryTreeWithRootandTops` whose `Tops` equals the
-  > entire  set `Childs` (a maximal tree). This is related to the existence of maximal
-  >  laminar families of subsets of the finite set `Childs`.
+  > entire  set `Childs` (a maximal tree). This is rooted 
+  > tree-representationrelated of  a  maximal
+  >  laminar family of subsets of the finite set `Childs`.
   
 ## One explicit example of maximal BinaryTreeWithRootandTops 
 
@@ -64,3 +68,6 @@ Its tree structure is:
     branch->({1}, {2})           3        branch->({4}, {5})   ({6}, {7}) <-branch
               /     \          (top)              /       \     /       \
            1(top)  2(top)                   4(top)    5(top) 6(top)   7(top)
+
+ This  is a rooted tree-representationrelated  a  maximal laminar family
+ {1,2,3,4,5,6,7}, {1,2,3}, {4,5,6,7}, {1,2}, {4,5}, {6,7}, {1},{2},{3},{4},{5},{6},{7}
