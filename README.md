@@ -7,7 +7,7 @@ subsets of a finite Childs set of “children,” together with a
 distinguished set of “tops” acting as the leaves of the tree. 
 This is  closely related with laminar families of subsets of Childs.
 
-It is inspired by the accompanying LaTeX document `manual.tex`, which
+See the accompanying LaTeX document `manual.tex`, which
 provides diagrams and detailed formal notation.
 
 ## Features
