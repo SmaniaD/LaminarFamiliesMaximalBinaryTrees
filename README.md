@@ -5,7 +5,9 @@ This Lean 4 project formalizes a mathematical structure
 binary tree whose nodes are pairs of disjoint, nonempty, finite
 subsets of a finite set `Childs` of “children,” together with a
 distinguished set of “tops” acting as the leaves of the tree. 
-This is  closely related with laminar families of subsets of Childs.
+This is  closely related with laminar families
+(https://en.wikipedia.org/wiki/Laminar_set_family ) of subsets
+of the set Childs.
 
 See the accompanying LaTeX document `manual.tex`, which
 provides diagrams and detailed formal notation.
