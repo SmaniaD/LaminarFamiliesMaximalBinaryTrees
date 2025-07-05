@@ -9,7 +9,7 @@ This is  closely related with laminar families
 (https://en.wikipedia.org/wiki/Laminar_set_family ) of subsets
 of the set Childs:  Every laminar family of subsets has a rooted 
 tree-representation, see Alexander Schrijver. Combinatorial 
-Optimization: Polyhedra  and Efficiency, 2004,page 214, Theorem 
+Optimization: Polyhedra  and Efficiency, 2004, page 214, Theorem 
 13.21.
 
 See the accompanying LaTeX document `manual.tex`, which
