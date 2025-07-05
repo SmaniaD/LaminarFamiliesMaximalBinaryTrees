@@ -3,7 +3,7 @@
 This Lean 4 project formalizes a mathematical structure
 **BinaryTreeWithRootandTops**, which models a rooted, ordered
 binary tree whose nodes are pairs of disjoint, nonempty, finite
-subsets of a finite Childs set of “children,” together with a
+subsets of a finite set `Childs` of “children,” together with a
 distinguished set of “tops” acting as the leaves of the tree. 
 This is  closely related with laminar families of subsets of Childs.
 
