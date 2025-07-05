@@ -25,11 +25,11 @@ provides diagrams and detailed formal notation.
 - Existence theorem:
   > `exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two`
   >
-  > Any Childs set of at least two elements can be turned into
+  > Any finite set `Childs` of at least two elements has a 
   > a `BinaryTreeWithRootandTops` whose `Tops` equals the
-  > entire ground set. This is related to the existence of maximal
-  >  laminar families of subsets of the finite set Childs. 
--  One explicit example of BinaryTreeWithRootandTops is 
+  > entire  set `Childs` (a maximal tree). This is related to the existence of maximal
+  >  laminar families of subsets of the finite set `Childs`. 
+-  One explicit example of maximal BinaryTreeWithRootandTops is 
 
 Childs = {1,2,3,4,5,6,7}
 
