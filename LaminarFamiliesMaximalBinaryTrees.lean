@@ -28,20 +28,18 @@ open Lean.Elab.Tactic
 open scoped Classical
 
 
-/-- teste Para qualquer `C` e `a`, temos `C ⊆ {a} ∪ (C \ {a})`. -/
+/-- For any `C` and `a`, we have `C ⊆ {a} ∪ (C \ {a})`. -/
 lemma subset_singleton_union_sdiff [DecidableEq α] (C : Finset α) (a : α) :
     C ⊆ ({a} : Finset α) ∪ (C \ {a}) := by
-  intro x hxC                      -- escolha x ∈ C
+  intro x hxC
   by_cases hxa : x = a
-  · -- CASO 1: x = a  →  pertence ao singleton {a}
-    -- Queremos: x ∈ {a} ∪ (C \ {a})
-    -- Reescrevemos a meta como disjunção explícita
+  ·
     have : x ∈ ({a}:Finset α) := by
-      simp [hxa, Finset.mem_singleton]          -- termina x ∈ {a}
-    simpa [Finset.mem_union] using Or.inl this   -- meta fechada
-  · -- CASO 2: x ≠ a  →  pertence a C \ {a}
+      simp [hxa, Finset.mem_singleton]
+    simpa [Finset.mem_union] using Or.inl this
+  ·
     have : x ∈ C \ {a} := by
-      -- caracterização de `∈` na diferença
+
       refine (Finset.mem_sdiff).mpr ?_
       exact ⟨hxC, by simp [Finset.mem_singleton, hxa]⟩
     simp [Finset.mem_union]
@@ -51,7 +49,7 @@ lemma subset_singleton_union_sdiff [DecidableEq α] (C : Finset α) (a : α) :
 
 lemma singleton_disjoint_sdiff [DecidableEq α] (C : Finset α) (a : α) :
     Disjoint ({a} : Finset α) (C \ {a}) := by
-  -- usamos o caracterizador `disjoint_left`:
+
   -- `Disjoint s t ↔ ∀ x, x ∈ s → x ∈ t → False`
   refine (Finset.disjoint_left.2 ?_)
   intro x hx_left hx_right
@@ -88,8 +86,8 @@ theorem embed_disj_tauto (a b c d e : Prop) :
   tauto
 
 
-/-- `xor p q` é verdadeiro sse **exatamente um** entre `p` e `q`
-    vale.  Equivalente a `(p ∧ ¬q) ∨ (¬p ∧ q)`. -/
+/-- `xor p q` is true iff **exactly one** of `p` and `q`
+    holds. Equivalent to `(p ∧ ¬q) ∨ (¬p ∧ q)`. -/
 def xor (p q : Prop) : Prop := (p ∧ ¬ q) ∨ (¬ p ∧ q)
 
 
@@ -721,12 +719,12 @@ lemma inclusion_support_finner_2 {α : Type*}[DecidableEq α]
             exact Or.inr hp_eq_q
             | inr hq_sub_p2 =>
              simp[Combinatorial_Support] at hq_sub_p2
-             -- Este caso: Combinatorial_Support q ⊆ p.2
-             -- Mas também temos h : p.1 ⊆ q.2 do início
-             -- E sabemos que Combinatorial_Support q = q.1 ∪ q.2
-             -- Então q.2 ⊆ Combinatorial_Support q ⊆ p.2
-             -- Por transitividade: p.1 ⊆ q.2 ⊆ p.2, logo p.1 ⊆ p.2
-             -- Mas p.1 e p.2 são disjuntos por DisjointComponents, contradição
+             -- This case: Combinatorial_Support q ⊆ p.2
+             -- But we also have h : p.1 ⊆ q.2 from the beginning
+             -- And we know that Combinatorial_Support q = q.1 ∪ q.2
+             -- So q.2 ⊆ Combinatorial_Support q ⊆ p.2
+             -- By transitivity: p.1 ⊆ q.2 ⊆ p.2, therefore p.1 ⊆ p.2
+             -- But p.1 and p.2 are disjoint by DisjointComponents, contradiction
              exfalso
              have hq2_sub_p2 : q.2 ⊆ p.2 := by
                have hq2_sub_support : q.2 ⊆ Combinatorial_Support q := Finset.subset_union_right
@@ -801,14 +799,14 @@ lemma inclusion_support_finner_3 {α : Type*}[DecidableEq α]
 
             | inr hq_sub_p2 =>
              simp[Combinatorial_Support] at hq_sub_p2
-             -- Este caso: Combinatorial_Support q ⊆ p.2
-             -- Mas também temos h : p.2 ⊆ q.1 do início
-             -- E sabemos que Combinatorial_Support q = q.1 ∪ q.2
-             -- Então q.1 ⊆ Combinatorial_Support q ⊆ p.2
-             -- Por transitividade: p.2 ⊆ q.1 ⊆ p.2, logo p.2 = q.1
-             -- E também q.2 ⊆ Combinatorial_Support q ⊆ p.2
-             -- Mas p.1 e p.2 são disjuntos, e também q.1 e q.2 são disjuntos
-             -- Isso levaria a contradições com as propriedades de disjunção
+             -- This case: Combinatorial_Support q ⊆ p.2
+             -- But we also have h : p.2 ⊆ q.1 from the beginning
+             -- And we know that Combinatorial_Support q = q.1 ∪ q.2
+             -- So q.1 ⊆ Combinatorial_Support q ⊆ p.2
+             -- By transitivity: p.2 ⊆ q.1 ⊆ p.2, therefore p.2 = q.1
+             -- And also q.2 ⊆ Combinatorial_Support q ⊆ p.2
+             -- But p.1 and p.2 are disjoint, and also q.1 and q.2 are disjoint
+             -- This would lead to contradictions with the disjunction properties
              exfalso
              have hq1_sub_p2 : q.1 ⊆ p.2 := by
                have hq1_sub_support : q.1 ⊆ Combinatorial_Support q := Finset.subset_union_left
@@ -1678,10 +1676,10 @@ lemma Compare_Supports [DecidableEq α]
                     exact hq1 ▸ hq2
                   exact hg.trans hqsubw22
   case inr hq2 =>
-    -- caso 𝚙.1 ∪ 𝚙.2 = q.2 — inteiro análogo ao anterior
+    -- case 𝚙.1 ∪ 𝚙.2 = q.2
     have hpsup : Combinatorial_Support p = q.2 := by
       dsimp [Combinatorial_Support]; rw [hq2]
-    -- (a) se w = q, sobra mostrar p.support ⊆ w.support
+    -- (a) if  w = q, it remains to show p.support ⊆ w.support
     by_cases hwq : w = q
     rw[hwq]
     case pos =>
@@ -1690,9 +1688,9 @@ lemma Compare_Supports [DecidableEq α]
       dsimp[Combinatorial_Support]
       exact Finset.subset_of_eq hq2
     case neg =>
-      -- Caso w ≠ q: pelo h_min, não existe r ≠ q com Combinatorial_Support r ⊆ Combinatorial_Support q
-      -- Mas w ≠ q, então não pode ser Combinatorial_Support w ⊆ Combinatorial_Support q
-      -- Então, pelo SupportPorperty de T, ou os suportes são disjuntos, ou Combinatorial_Support q ⊆ Combinatorial_Support w
+    -- Case w ≠ q: by h_min, there doesn't exist r ≠ q with Combinatorial_Support r ⊆ Combinatorial_Support q
+    -- But w ≠ q, so it cannot be that Combinatorial_Support w ⊆ Combinatorial_Support q
+    -- Then, by SupportProperty of T, either the supports are disjoint, or Combinatorial_Support q ⊆ Combinatorial_Support w
       have hT := T.SupportProperty w hw q hq hwq
       cases hT with
       | inl hdisj =>
@@ -1757,7 +1755,8 @@ lemma Compare_Supports [DecidableEq α]
 
               have : w=q :=
                 by
-                  -- Pela minimalidade de q, se existe w ≠ q com Combinatorial_Support q ⊆ Combinatorial_Support w, isso contradiz h_min
+                  -- By the minimality of q, if there exists w ≠ q with
+                  -- Combinatorial_Support q ⊆ Combinatorial_Support w, this contradicts h_min
                   by_contra hneq
                   have contra := h_min ⟨w, hw, ⟨hneq, hg⟩⟩
                   exact contra
