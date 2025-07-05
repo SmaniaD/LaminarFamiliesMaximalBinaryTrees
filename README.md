@@ -1,4 +1,4 @@
-# Bibary Trees of Subsets of a Finite set associated with Laminar Families (Lean 4)
+# Binary Trees of Subsets of a Finite set associated with Laminar Families (Lean 4)
 
 This Lean 4 project formalizes a mathematical structure
 **BinaryTreeWithRootandTops**, which models a rooted, ordered
