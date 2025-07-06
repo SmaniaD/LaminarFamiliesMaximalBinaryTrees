@@ -1,7 +1,5 @@
-/-!
-Copyright (c) 2025 Daniel Smania.  All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
--/
+-- SPDX-License-Identifier: Apache-2.0
+-- Copyright (c) 2025, Daniel Smania
 
 import Mathlib.MeasureTheory.Measure.MeasureSpace
 import Mathlib.Data.Real.Basic
