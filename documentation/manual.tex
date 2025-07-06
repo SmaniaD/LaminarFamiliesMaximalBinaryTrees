@@ -14,7 +14,8 @@
 \theoremstyle{remark}            % estilo sem itálico, como Observações
 \newtheorem{remark}[theorem]{Remark}  
 \usepackage{graphicx}   % habilita \includegraphics
-\usepackage{caption}    % (opcional) controla formatação de legendas
+\usepackage{caption} 
+\usepackage{hyperref}   % (opcional) controla formatação de legendas
 % ------------------------------------------------------------------
 
 \title{Manual for the Structure \texttt{BinaryTreeWithRootandTops}}
@@ -268,7 +269,7 @@ T.\texttt{Tops}=C.
 \end{theorem}
 
 
-\subsection{Example} In the  previous example we do not have $T.Tops=T.Childs$, however we can complete it as 
+\subsection{Example}\label{tt} In the  previous example we do not have $T.Tops=T.Childs$, however we can complete it as 
 
 \begin{forest}
 for tree = {
@@ -303,6 +304,37 @@ for tree = {
 ]
 ]
 \end{forest}
+
+\subsection{Connection with Laminar Families of Subsets}
+
+Given a finite set $C$, a *laminar family* $\mathcal{L}$ is a family of subsets of $C$ satisfying the following condition: for every pair $A,B \in \mathcal{L}$, one of the following holds:
+\begin{itemize}
+  \item[-] $A \subset B$,
+  \item[-] $B \subset A$, or
+  \item[-] $A \cap B = \emptyset$.
+\end{itemize}
+For more details, see \url{https://en.wikipedia.org/wiki/Laminar_set_family}.
+
+A laminar family $\mathcal{L}$ is called *maximal* if there does not exist a  laminar family of $C$ containing $\mathcal{L}$ properly. Every laminar family of subsets of a finite set $C$ has a rooted tree representation; see Alexander Schrijver, {\it Combinatorial Optimization: Polyhedra and Efficiency}, 2004, page 215, Theorem 13.21.
+
+A tree structure named \texttt{BinaryTreeWithRootandTops}, with $\texttt{Tops} = \texttt{Childs}$, is a {\it rooted tree representation} of a maximal laminar family of $\texttt{Childs}$. For example, the tree in Section \ref{tt} represents the maximal laminar family of $\{1,2,3,4,5,6,7\}$ given by
+$$
+\left\{
+  \{1,2,3,4,5,6,7\},\;
+  \{1,2,3\},\;
+  \{4,5,6,7\},\;
+  \{1,2\},\;
+  \{4,5\},\;
+  \{6,7\},\;
+  \{1\},\;
+  \{2\},\;
+  \{3\},\;
+  \{4\},\;
+  \{5\},\;
+  \{6\},\;
+  \{7\}
+\right\}.
+$$
 
 
 
