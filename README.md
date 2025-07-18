@@ -59,15 +59,10 @@ Branches:
 Tops = {1,2,3,4,5,6,7}
 
 Its tree structure is:
-                                  {1,2,3,4,5,6,7} Childs
-                                          |
-                                ({1,2,3}, {4,5,6,7}) root <- branch
-                               /                       \
-                    ({1,2}, {3}) <-branch            ({4,5}, {6,7}) <-branch
-                      /         \                    /           \
-    branch->({1}, {2})           3        branch->({4}, {5})   ({6}, {7}) <-branch
-              /     \          (top)              /       \     /       \
-           1(top)  2(top)                   4(top)    5(top) 6(top)   7(top)
+
+<img width="716" height="421" alt="tree" src="https://github.com/user-attachments/assets/7dbff802-110a-4639-acaa-cf7276cde203" />
+
+                                
 
  This  is a rooted tree-representation of  the  maximal laminar family
  {1,2,3,4,5,6,7}, {1,2,3}, {4,5,6,7}, {1,2}, {4,5}, {6,7}, {1},{2},{3},{4},{5},{6},{7}
