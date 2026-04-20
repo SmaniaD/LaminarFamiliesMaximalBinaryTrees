@@ -246,6 +246,9 @@ decreasing_by
     Finset.card_le_card (support_subset_root_support (T := T) hp)
   omega
 
+
+
+
 theorem exists_chain_from_root_to_top {α : Type*} [DecidableEq α]
   {T : BinaryTreeWithRootandTops α} {t : α}
   (hp : t ∈ T.Tops) :
@@ -266,6 +269,123 @@ theorem exists_chain_from_root_to_top {α : Type*} [DecidableEq α]
   exact ⟨n, chain, h0, hchain_top, hmem, hstep⟩
 
 
+/-- The branch containing a given component is unique: if the same finset belongs to
+    `pairToFinset q` and `pairToFinset r` (both in `T.Branches`), then `q = r`. -/
+lemma unique_parent {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {s : Finset α}
+    {q r : Finset α × Finset α}
+    (hq : q ∈ T.Branches) (hr : r ∈ T.Branches)
+    (hsq : s ∈ pairToFinset q) (hsr : s ∈ pairToFinset r) :
+    q = r := by
+  by_contra hne
+  exact absurd hsr
+    (Finset.disjoint_left.mp (T.DistinctComponentsPairs q hq r hr hne) hsq)
+
+/-- Any two valid chains from `T.Root` to the same branch `p` have the same length
+    and agree entry-by-entry. -/
+theorem chain_from_root_unique {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+    (hp : p ∈ T.Branches)
+    {n1 n2 : ℕ}
+    {c1 c2 : ℕ → Finset α × Finset α}
+    (h1_0   : c1 0 = T.Root) (h1_n : c1 n1 = p)
+    (h1_mem : ∀ i ≤ n1, c1 i ∈ T.Branches)
+    (h1_step : ∀ i < n1,
+        Combinatorial_Support (c1 (i + 1)) = (c1 i).1 ∨
+        Combinatorial_Support (c1 (i + 1)) = (c1 i).2)
+    (h2_0   : c2 0 = T.Root) (h2_n : c2 n2 = p)
+    (h2_mem : ∀ i ≤ n2, c2 i ∈ T.Branches)
+    (h2_step : ∀ i < n2,
+        Combinatorial_Support (c2 (i + 1)) = (c2 i).1 ∨
+        Combinatorial_Support (c2 (i + 1)) = (c2 i).2) :
+    n1 = n2 ∧ ∀ i ≤ n1, c1 i = c2 i := by
+  -- ── Backward-agreement sub-lemma ─────────────────────────────────────────
+  -- For every k ≤ n1 and k ≤ n2, the chains agree k steps from the end.
+  have back : ∀ k, k ≤ n1 → k ≤ n2 → c1 (n1 - k) = c2 (n2 - k) := by
+    intro k
+    induction k with
+    | zero => intros; simp [h1_n, h2_n]
+    | succ k ih =>
+      intro hsk1 hsk2
+      have hk1 : k ≤ n1 := Nat.le_of_succ_le hsk1
+      have hk2 : k ≤ n2 := Nat.le_of_succ_le hsk2
+      have hklt1 : k < n1 := by omega
+      have hklt2 : k < n2 := by omega
+      have hk_eq := ih hk1 hk2
+      -- Step conditions at index (n? - (k+1))
+      have hst1 := h1_step (n1 - (k + 1)) (by omega)
+      rw [show n1 - (k + 1) + 1 = n1 - k from by omega] at hst1
+      have hst2 := h2_step (n2 - (k + 1)) (by omega)
+      rw [show n2 - (k + 1) + 1 = n2 - k from by omega] at hst2
+      -- Both step conditions now mention c1 (n1 - k) (via hk_eq)
+      rw [← hk_eq] at hst2
+      -- Convert to pairToFinset membership
+      have hmem1 := h1_mem (n1 - (k + 1)) (by omega)
+      have hmem2 := h2_mem (n2 - (k + 1)) (by omega)
+      have hpq : Combinatorial_Support (c1 (n1 - k)) ∈ pairToFinset (c1 (n1 - (k + 1))) := by
+        dsimp [pairToFinset]; simpa [Finset.mem_insert, Finset.mem_singleton] using hst1
+      have hpr : Combinatorial_Support (c1 (n1 - k)) ∈ pairToFinset (c2 (n2 - (k + 1))) := by
+        dsimp [pairToFinset]; simpa [Finset.mem_insert, Finset.mem_singleton] using hst2
+      exact unique_parent hmem1 hmem2 hpq hpr
+  -- ── Lengths are equal ────────────────────────────────────────────────────
+  have hn_eq : n1 = n2 := by
+    by_contra hne
+    rcases lt_or_gt_of_ne hne with hlt | hlt
+    · -- n1 < n2: backward-agree at distance n1 gives c2 (n2 - n1) = Root
+      have hagree := back n1 le_rfl (by omega)
+      simp [Nat.sub_self, h1_0] at hagree
+      -- hagree : c2 (n2 - n1) = T.Root
+      -- But that means Root is a "child" branch at position n2-n1 > 0
+      have hst2 := h2_step (n2 - n1 - 1) (by omega)
+      rw [show n2 - n1 - 1 + 1 = n2 - n1 from by omega] at hst2
+      rw [← hagree] at hst2
+      have hmem2 := h2_mem (n2 - n1 - 1) (by omega)
+      linarith [child_support_card_lt_parent (T := T) hmem2 hst2,
+                Finset.card_le_card (support_subset_root_support (T := T) hmem2)]
+    · -- n1 > n2: symmetric
+      have hagree := back n2 (by omega) le_rfl
+      simp [Nat.sub_self, h2_0] at hagree
+      -- hagree : c1 (n1 - n2) = T.Root
+      have hst1 := h1_step (n1 - n2 - 1) (by omega)
+      rw [show n1 - n2 - 1 + 1 = n1 - n2 from by omega] at hst1
+      rw [hagree] at hst1
+      have hmem1 := h1_mem (n1 - n2 - 1) (by omega)
+      linarith [child_support_card_lt_parent (T := T) hmem1 hst1,
+                Finset.card_le_card (support_subset_root_support (T := T) hmem1)]
+  -- ── Pointwise agreement ───────────────────────────────────────────────────
+  refine ⟨hn_eq, fun i hi => ?_⟩
+  have hagree := back (n1 - i) (Nat.sub_le n1 i) (hn_eq ▸ Nat.sub_le n1 i)
+  simp only [show n1 - (n1 - i) = i from by omega] at hagree
+  -- After hn_eq ▸, n2 = n1 in hagree, so n2 - (n1 - i) = i as well
+  convert hagree using 2
+  omega
+
+theorem chain_from_root_to_top_unique {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {t : α}
+    (hp : t ∈ T.Tops)
+    {n1 n2 : ℕ}
+    {c1 c2 : ℕ → Finset α × Finset α}
+    (h1_0   : c1 0 = T.Root) (h1_n : ({t} = (c1 n1).1 ∨ {t} = (c1 n1).2))
+    (h1_mem : ∀ i ≤ n1, c1 i ∈ T.Branches)
+    (h1_step : ∀ i < n1,
+        Combinatorial_Support (c1 (i + 1)) = (c1 i).1 ∨
+        Combinatorial_Support (c1 (i + 1)) = (c1 i).2)
+    (h2_0   : c2 0 = T.Root) (h2_n : ({t} = (c2 n2).1 ∨ {t} = (c2 n2).2))
+    (h2_mem : ∀ i ≤ n2, c2 i ∈ T.Branches)
+    (h2_step : ∀ i < n2,
+        Combinatorial_Support (c2 (i + 1)) = (c2 i).1 ∨
+        Combinatorial_Support (c2 (i + 1)) = (c2 i).2) :
+    n1 = n2 ∧ ∀ i ≤ n1, c1 i = c2 i := by
+  -- {t} ∈ pairToFinset (c1 n1) and {t} ∈ pairToFinset (c2 n2),
+  -- so unique_parent forces c1 n1 = c2 n2.
+  have hmem1 := h1_mem n1 le_rfl
+  have hmem2 := h2_mem n2 le_rfl
+  have ht1 : ({t} : Finset α) ∈ pairToFinset (c1 n1) := by
+    dsimp [pairToFinset]; simpa [Finset.mem_insert, Finset.mem_singleton] using h1_n
+  have ht2 : ({t} : Finset α) ∈ pairToFinset (c2 n2) := by
+    dsimp [pairToFinset]; simpa [Finset.mem_insert, Finset.mem_singleton] using h2_n
+  have hend_eq : c1 n1 = c2 n2 := unique_parent hmem1 hmem2 ht1 ht2
+  exact chain_from_root_unique hmem1 h1_0 rfl h1_mem h1_step h2_0 hend_eq.symm h2_mem h2_step
 
 
 
