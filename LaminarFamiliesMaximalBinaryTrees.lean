@@ -387,6 +387,68 @@ theorem chain_from_root_to_top_unique {α : Type*} [DecidableEq α]
   have hend_eq : c1 n1 = c2 n2 := unique_parent hmem1 hmem2 ht1 ht2
   exact chain_from_root_unique hmem1 h1_0 rfl h1_mem h1_step h2_0 hend_eq.symm h2_mem h2_step
 
+/-- The length of the unique chain from `T.Root` to branch `p`. -/
+noncomputable def chainLength {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+    (hp : p ∈ T.Branches) : ℕ :=
+  (exists_chain_from_root hp).choose
+
+/-- The unique chain from `T.Root` to branch `p`. -/
+noncomputable def ChainToRoot {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+    (hp : p ∈ T.Branches) : ℕ → Finset α × Finset α :=
+  (exists_chain_from_root hp).choose_spec.choose
+
+/-- The defining properties of `ChainToRoot`. -/
+lemma ChainToRoot_spec {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+    (hp : p ∈ T.Branches) :
+    ChainToRoot hp 0 = T.Root ∧
+    ChainToRoot hp (chainLength hp) = p ∧
+    (∀ i ≤ chainLength hp, ChainToRoot hp i ∈ T.Branches) ∧
+    (∀ i < chainLength hp,
+      Combinatorial_Support (ChainToRoot hp (i + 1)) = (ChainToRoot hp i).1 ∨
+      Combinatorial_Support (ChainToRoot hp (i + 1)) = (ChainToRoot hp i).2) :=
+  (exists_chain_from_root hp).choose_spec.choose_spec
+
+lemma ChainToRoot_zero {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+    (hp : p ∈ T.Branches) : ChainToRoot hp 0 = T.Root :=
+  (ChainToRoot_spec hp).1
+
+lemma ChainToRoot_end {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+    (hp : p ∈ T.Branches) : ChainToRoot hp (chainLength hp) = p :=
+  (ChainToRoot_spec hp).2.1
+
+lemma ChainToRoot_mem {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+    (hp : p ∈ T.Branches) {i : ℕ} (hi : i ≤ chainLength hp) :
+    ChainToRoot hp i ∈ T.Branches :=
+  (ChainToRoot_spec hp).2.2.1 i hi
+
+lemma ChainToRoot_step {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+    (hp : p ∈ T.Branches) {i : ℕ} (hi : i < chainLength hp) :
+    Combinatorial_Support (ChainToRoot hp (i + 1)) = (ChainToRoot hp i).1 ∨
+    Combinatorial_Support (ChainToRoot hp (i + 1)) = (ChainToRoot hp i).2 :=
+  (ChainToRoot_spec hp).2.2.2 i hi
+
+/-- Any chain with the same endpoint as `ChainToRoot hp` must agree with it. -/
+lemma ChainToRoot_unique {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+    (hp : p ∈ T.Branches)
+    {n : ℕ} {c : ℕ → Finset α × Finset α}
+    (hc0 : c 0 = T.Root) (hcn : c n = p)
+    (hcmem : ∀ i ≤ n, c i ∈ T.Branches)
+    (hcstep : ∀ i < n,
+        Combinatorial_Support (c (i + 1)) = (c i).1 ∨
+        Combinatorial_Support (c (i + 1)) = (c i).2) :
+    n = chainLength hp ∧ ∀ i ≤ n, c i = ChainToRoot hp i := by
+  have := chain_from_root_unique hp hc0 hcn hcmem hcstep
+      (ChainToRoot_zero hp) (ChainToRoot_end hp)
+      (fun i hi => ChainToRoot_mem hp hi) (fun i hi => ChainToRoot_step hp hi)
+  exact ⟨this.1, this.2⟩
 
 
 lemma suppp_p_incl_q1_disjoint_pairfinset {α : Type*}[DecidableEq α]
