@@ -139,6 +139,136 @@ structure BinaryTreeWithRootandTops (α : Type*)[DecidableEq α] where
     Combinatorial_Support q ⊆ p.2)
 
 
+lemma support_subset_root_support {α : Type*} [DecidableEq α]
+  {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+  (hp : p ∈ T.Branches) :
+  Combinatorial_Support p ⊆ Combinatorial_Support T.Root := by
+  have hp_childs := T.TreeStructureChilds p hp
+  dsimp [Combinatorial_Support]
+  exact (Finset.union_subset hp_childs.1 hp_childs.2).trans T.RootcontainsChilds
+
+lemma child_support_card_lt_parent {α : Type*} [DecidableEq α]
+  {T : BinaryTreeWithRootandTops α} {p q : Finset α × Finset α}
+  (hq : q ∈ T.Branches)
+  (hparent : Combinatorial_Support p = q.1 ∨ Combinatorial_Support p = q.2) :
+  (Combinatorial_Support p).card < (Combinatorial_Support q).card := by
+  rcases hparent with hpq1 | hpq2
+  · rw [hpq1]
+    have hq_disj : Disjoint q.1 q.2 := T.DisjointComponents q hq
+    have hq2_pos : 0 < q.2.card := Finset.card_pos.mpr (T.NonemptyPairs q hq).2
+    have hq_card : (Combinatorial_Support q).card = q.1.card + q.2.card := by
+      dsimp [Combinatorial_Support]
+      rw [Finset.card_union_of_disjoint hq_disj]
+    calc
+      q.1.card < q.1.card + q.2.card := Nat.lt_add_of_pos_right hq2_pos
+      _ = (Combinatorial_Support q).card := hq_card.symm
+  · rw [hpq2]
+    have hq_disj : Disjoint q.1 q.2 := T.DisjointComponents q hq
+    have hq1_pos : 0 < q.1.card := Finset.card_pos.mpr (T.NonemptyPairs q hq).1
+    have hq_card : (Combinatorial_Support q).card = q.1.card + q.2.card := by
+      dsimp [Combinatorial_Support]
+      rw [Finset.card_union_of_disjoint hq_disj]
+    calc
+      q.2.card < q.1.card + q.2.card := Nat.lt_add_of_pos_left hq1_pos
+      _ = (Combinatorial_Support q).card := hq_card.symm
+
+theorem exists_chain_from_root {α : Type*} [DecidableEq α]
+  {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+  (hp : p ∈ T.Branches) :
+  ∃ n : ℕ, ∃ chain : ℕ → (Finset α × Finset α),
+    chain 0 = T.Root ∧
+    chain n = p ∧
+    (∀ i ≤ n, chain i ∈ T.Branches) ∧
+    (∀ i < n,
+      Combinatorial_Support (chain (i + 1)) = (chain i).1 ∨
+      Combinatorial_Support (chain (i + 1)) = (chain i).2) := by
+  by_cases hroot : p = T.Root
+  · refine ⟨0, (fun _ => T.Root), ?_, ?_, ?_, ?_⟩
+    · rfl
+    · simp [hroot]
+    · intro i hi
+      have hi0 : i = 0 := Nat.eq_zero_of_le_zero hi
+      simpa [hi0] using T.RootinBranches
+    · intro i hi
+      exact (Nat.not_lt_zero i hi).elim
+  · obtain ⟨q, hq, hp_in_parent⟩ := T.TreeStructure p hp hroot
+    have hparent : Combinatorial_Support p = q.1 ∨ Combinatorial_Support p = q.2 := by
+      dsimp [pairToFinset] at hp_in_parent
+      simpa [Combinatorial_Support] using hp_in_parent
+    rcases exists_chain_from_root (T := T) hq with ⟨k, hkrest⟩
+    rcases hkrest with ⟨f, hf0, hfk, hfmem, hfstep⟩
+    let g : ℕ → (Finset α × Finset α) :=
+      fun i => if h : i ≤ k then f i else p
+    refine ⟨k + 1, g, ?_, ?_, ?_, ?_⟩
+    · have h0k : 0 ≤ k := Nat.zero_le k
+      simp [g, h0k, hf0]
+    · have hnot : ¬ (k + 1 ≤ k) := Nat.not_succ_le_self k
+      simp [g, hnot]
+    · intro idx hidx
+      by_cases hidxk : idx ≤ k
+      · simp [g, hidxk, hfmem idx hidxk]
+      · have hidx_eq : idx = k + 1 := by omega
+        subst hidx_eq
+        have hnot : ¬ (k + 1 ≤ k) := Nat.not_succ_le_self k
+        simp [g, hnot, hp]
+    · intro idx hidx
+      by_cases hidxk : idx < k
+      · have hidxk_le : idx ≤ k := Nat.le_of_lt hidxk
+        have hsucc_le : idx + 1 ≤ k := Nat.succ_le_of_lt hidxk
+        have hstep := hfstep idx hidxk
+        simpa [g, hidxk_le, hsucc_le] using hstep
+      · have hidx_eq : idx = k := by omega
+        have hg_k : g k = q := by
+          simp [g, hfk]
+        have hg_k1 : g (k + 1) = p := by
+          have hnot : ¬ (k + 1 ≤ k) := Nat.not_succ_le_self k
+          simp [g, hnot]
+        have hg_idx : g idx = q := by simpa [hidx_eq] using hg_k
+        have hg_idx1 : g (idx + 1) = p := by
+          simpa [hidx_eq, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm] using hg_k1
+        rw [hg_idx1, hg_idx]
+        exact hparent
+termination_by
+  (Combinatorial_Support T.Root).card - (Combinatorial_Support p).card
+decreasing_by
+  have hparent :
+      Combinatorial_Support p = q.1 ∨ Combinatorial_Support p = q.2 := by
+    dsimp [pairToFinset] at hp_in_parent
+    simpa [Combinatorial_Support] using hp_in_parent
+  have hcard_lt :
+      (Combinatorial_Support p).card < (Combinatorial_Support q).card :=
+    child_support_card_lt_parent (T := T) hq hparent
+  have hq_le_root :
+      (Combinatorial_Support q).card ≤ (Combinatorial_Support T.Root).card :=
+    Finset.card_le_card (support_subset_root_support (T := T) hq)
+  have hp_le_root :
+      (Combinatorial_Support p).card ≤ (Combinatorial_Support T.Root).card :=
+    Finset.card_le_card (support_subset_root_support (T := T) hp)
+  omega
+
+theorem exists_chain_from_root_to_top {α : Type*} [DecidableEq α]
+  {T : BinaryTreeWithRootandTops α} {t : α}
+  (hp : t ∈ T.Tops) :
+  ∃ n : ℕ, ∃ chain : ℕ → (Finset α × Finset α),
+    chain 0 = T.Root ∧
+    ({t}=(chain n).1 ∨ {t}=(chain n).2) ∧
+    (∀ i ≤ n, chain i ∈ T.Branches) ∧
+    (∀ i < n,
+      Combinatorial_Support (chain (i + 1)) = (chain i).1 ∨
+      Combinatorial_Support (chain (i + 1)) = (chain i).2) := by
+  obtain ⟨q, hq, hqt⟩ := T.TopsareTops t hp
+  rcases exists_chain_from_root (T := T) hq with ⟨n, chain, h0, hn, hmem, hstep⟩
+  have hq_cases : ({t} : Finset α) = q.1 ∨ ({t} : Finset α) = q.2 := by
+    dsimp [pairToFinset] at hqt
+    simpa [Finset.mem_insert, Finset.mem_singleton] using hqt
+  have hchain_top : ({t} : Finset α) = (chain n).1 ∨ ({t} : Finset α) = (chain n).2 := by
+    simpa [hn] using hq_cases
+  exact ⟨n, chain, h0, hchain_top, hmem, hstep⟩
+
+
+
+
+
 lemma suppp_p_incl_q1_disjoint_pairfinset {α : Type*}[DecidableEq α]
   {T: BinaryTreeWithRootandTops α} {p : Finset α × Finset α} {q : Finset α × Finset α}
    (hq: q∈ T.Branches)(hincl: Combinatorial_Support p ⊆ q.1)(hdisj: Disjoint p.1 p.2)
