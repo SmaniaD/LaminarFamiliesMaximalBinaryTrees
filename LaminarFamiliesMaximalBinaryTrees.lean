@@ -1,5 +1,9 @@
 -- SPDX-License-Identifier: Apache-2.0
 -- Copyright (c) 2025, Daniel Smania
+--[[require]]
+--name = "mathlib"
+--scope = "leanprover-community"
+--rev = "v4.22.0-rc2"
 
 import Mathlib.MeasureTheory.Measure.MeasureSpace
 import Mathlib.Data.Real.Basic
