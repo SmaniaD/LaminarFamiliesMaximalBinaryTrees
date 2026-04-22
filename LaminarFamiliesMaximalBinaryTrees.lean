@@ -2270,9 +2270,12 @@ lemma exists_binary_tree_with_childs_eq_C {α:Type*} [DecidableEq α]{C : Finset
   -- Pick two distinct elements from C
   obtain ⟨a, ha⟩ := hC_nonempty
   have hC2 : ∃ b, b ≠ a ∧ b ∈ C := by
-    have : 1 < C.card := by linarith
-    obtain ⟨b, hb, hba⟩ := Finset.exists_ne_of_one_lt_card this a
-    exact ⟨b, hba, hb⟩
+    have hErase : 0 < (C.erase a).card := by
+      rw [Finset.card_erase_of_mem ha]
+      exact Nat.sub_pos_of_lt (lt_of_lt_of_le (by decide : 1 < 2) hC)
+    obtain ⟨b, hb⟩ := Finset.card_pos.mp hErase
+    have hb' : b ≠ a ∧ b ∈ C := Finset.mem_erase.mp hb
+    exact ⟨b, hb'.1, hb'.2⟩
   obtain ⟨b, hba, hb⟩ := hC2
   let p : Finset α × Finset α := ({a}, C \ {a})
   have anempty: ({a} : Finset α).Nonempty := Finset.singleton_nonempty a
@@ -2313,8 +2316,10 @@ lemma exists_binary_tree_with_childs_eq_C {α:Type*} [DecidableEq α]{C : Finset
         apply Finset.Subset.antisymm
         · exact union_sdiff_of_mem ha
         · exact subset_singleton_union_sdiff C a
-    rw [this]
-    exact hc
+    have hc' : c ∈ ({a} ∪ (C \ {a})) := by
+      rw [this]
+      exact hc
+    exact hc'
   have branches_singleton : branches = {p} := rfl
   let tops := C.filter (λ x => {x} ∈ pairToFinset p)
   have tops_property : ∀ x ∈ tops, ∃ q ∈ branches, {x} ∈ pairToFinset q := by
@@ -2611,7 +2616,7 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                 -- This would mean c ∉ q.1, contradicting hc_in_q1
                 have hc_not_in_q1 : c ∉ q.1 := by
                   rw [← h_eq]
-                  exact Finset.not_mem_sdiff_of_mem_right (Finset.mem_singleton_self c)
+                  simp [Finset.mem_sdiff, Finset.mem_singleton]
                 exact hc_not_in_q1 hc_in_q1
               have hp2dq1: ¬ p.2= q.1 := by
                 dsimp [p]
@@ -2693,15 +2698,12 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                     · -- q.1 \ {c} is nonempty since q.1.card ≥ 2
                       dsimp [p]
                       have : (q.1 \ {c}).card = q.1.card - 1 := by
-                        rw [Finset.card_sdiff]
-                        · simp [Finset.card_singleton]
-                        · exact Finset.singleton_subset_iff.mpr hc_in_q1
+                          rw [Finset.card_sdiff_of_subset (Finset.singleton_subset_iff.mpr hc_in_q1)]
+                          simp
                       have card_pos : (q.1 \ {c}).card > 0 := by
                         rw [this]
-                        have : q.1.card ≥ 2 := hq1_card_ge_2
-                        have : q.1.card - 1 ≥ 1 := Nat.sub_le_sub_right this 1
-                        simp at this
-                        linarith
+                        have := hq1_card_ge_2
+                        omega
                       exact Finset.card_pos.mp card_pos
                     · exact Finset.singleton_nonempty c
                   have h_disj : Disjoint (pairToFinset p) (pairToFinset b) := by
@@ -2710,14 +2712,14 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                 | inr hrest =>
                   cases hrest with
                   | inl hq_sub_b2 =>
-                    -- Case: Combinatorial_Support q ⊆ b.1
+                    -- Case: Combinatorial_Support q ⊆ b.2
                   have hcpcb2: Combinatorial_Support p ⊆ b.2 := by
                     dsimp [Combinatorial_Support, p]
                     have h_union : (q.1 \ {c}) ∪ {c} = q.1 := by
                       rw [Finset.sdiff_union_of_subset]
                       exact Finset.singleton_subset_iff.mpr hc_in_q1
                     rw [h_union]
-                    -- Now we need q.1 ⊆ b.1, which follows from hq_sub_b1
+                    -- Now we need q.1 ⊆ b.2, which follows from hq_sub_b2
                     dsimp [Combinatorial_Support] at hq_sub_b2
                     exact Finset.subset_union_left.trans hq_sub_b2
                   have hnempty: p.1.Nonempty ∧ p.2.Nonempty := by
@@ -2725,9 +2727,8 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                     · -- q.1 \ {c} is nonempty since q.1.card ≥ 2
                       dsimp [p]
                       have : (q.1 \ {c}).card = q.1.card - 1 := by
-                        rw [Finset.card_sdiff]
-                        · simp [Finset.card_singleton]
-                        · exact Finset.singleton_subset_iff.mpr hc_in_q1
+                          rw [Finset.card_sdiff_of_subset (Finset.singleton_subset_iff.mpr hc_in_q1)]
+                          simp
                       have card_pos : (q.1 \ {c}).card > 0 := by
                         rw [this]
                         have : q.1.card ≥ 2 := hq1_card_ge_2
@@ -2920,9 +2921,8 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
             · -- q.1 \ {c} is nonempty since q.1.card ≥ 2
               dsimp [p] -- Unfold p.1 to q.1 \ {c}
               have : (q.1 \ {c}).card = q.1.card - 1 := by
-                rw [Finset.card_sdiff]
-                · simp [Finset.card_singleton]
-                · exact Finset.singleton_subset_iff.mpr hc_in_q1
+                rw [Finset.card_sdiff_of_subset (Finset.singleton_subset_iff.mpr hc_in_q1)]
+                simp
               have card_pos : (q.1 \ {c}).card > 0 := by
                 rw [this]
                 have : q.1.card ≥ 2 := hq1_card_ge_2
@@ -3054,8 +3054,7 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
               -- This means pairToFinset p and pairToFinset b are not disjoint
               have hp_union : p.1 ∪ p.2 = q.2 := by
                dsimp [p]
-               rw [Finset.union_sdiff_of_subset]
-               exact Finset.singleton_subset_iff.mpr hc_in_q2
+               simp [hc_in_q2]
 
               have hp1dq1: ¬ p.1= q.1 := by
                 dsimp [p]
@@ -3121,6 +3120,7 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                   have h_union : {c} ∪ (q.2 \ {c}) = q.2 := by
                     rw [Finset.union_sdiff_of_subset]
                     exact Finset.singleton_subset_iff.mpr hc_in_q2
+                  simp only [Finset.insert_eq]
                   rw [h_union]
                   exact Finset.subset_union_right
                 have hp_disj_b : Disjoint  (Combinatorial_Support b) (Combinatorial_Support p):=
@@ -3140,6 +3140,7 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                     have h_union : {c} ∪ (q.2 \ {c}) = q.2 := by
                       rw [Finset.union_sdiff_of_subset]
                       exact Finset.singleton_subset_iff.mpr hc_in_q2
+                    simp only [Finset.insert_eq]
                     rw [h_union]
                     -- Now we need q.2 ⊆ b.1, which follows from hq_sub_b1
                     dsimp [Combinatorial_Support] at hq_sub_b1
@@ -3150,9 +3151,8 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                     · -- q.2 \ {c} is nonempty since q.2.card ≥ 2
                       dsimp [p]
                       have : (q.2 \ {c}).card = q.2.card - 1 := by
-                        rw [Finset.card_sdiff]
-                        · simp [Finset.card_singleton]
-                        · exact Finset.singleton_subset_iff.mpr hc_in_q2
+                         rw [Finset.card_sdiff]
+                         simp [hc_in_q2]
                       have card_pos : (q.2 \ {c}).card > 0 := by
                         rw [this]
                         have : q.2.card ≥ 2 := hq2_card_ge_2
@@ -3172,7 +3172,7 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                       have h_union : {c} ∪ (q.2 \ {c}) = q.2 := by
                         rw [Finset.union_sdiff_of_subset]
                         exact Finset.singleton_subset_iff.mpr hc_in_q2
-                      rw [h_union]
+                      rw [← h_union, Finset.insert_eq]
                       -- Now we need q.2 ⊆ b.2, which follows from hq_sub_b2
                       dsimp [Combinatorial_Support] at hq_sub_b2
                       exact Finset.subset_union_right.trans hq_sub_b2
