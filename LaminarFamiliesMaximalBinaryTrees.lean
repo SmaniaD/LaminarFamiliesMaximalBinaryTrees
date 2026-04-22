@@ -3101,7 +3101,7 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                 -- This would mean c ∉ q.2, contradicting hc_in_q2
                 have hc_not_in_q2 : c ∉ q.2 := by
                   rw [← h_eq]
-                  exact Finset.not_mem_sdiff_of_mem_right (Finset.mem_singleton_self c)
+                  simp [Finset.mem_sdiff]
                 exact hc_not_in_q2 hc_in_q2
               have hne : (¬ q.1 = p.1 ∧ ¬ q.1 = p.2) ∧ ¬ q.2 = p.1 ∧ ¬ q.2 = p.2 := by
                refine ⟨⟨mt Eq.symm hp1dq1, mt Eq.symm hp2dq1⟩, mt Eq.symm hp1dq2, mt Eq.symm hp2dq2⟩
@@ -3167,24 +3167,22 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                   cases hrest with
                   | inl hq_sub_b2 =>
                     -- Case: Combinatorial_Support q ⊆ b.2
-                    have hcpcb2: Combinatorial_Support p ⊆ b.2 := by
-                      dsimp [Combinatorial_Support, p]
-                      have h_union : {c} ∪ (q.2 \ {c}) = q.2 := by
-                        rw [Finset.union_sdiff_of_subset]
-                        exact Finset.singleton_subset_iff.mpr hc_in_q2
-                      rw [← h_union, Finset.insert_eq]
-                      -- Now we need q.2 ⊆ b.2, which follows from hq_sub_b2
-                      dsimp [Combinatorial_Support] at hq_sub_b2
-                      exact Finset.subset_union_right.trans hq_sub_b2
+                    have hcpcb2 : Combinatorial_Support p ⊆ b.2 := by
+                        dsimp [Combinatorial_Support, p]
+                        have h_union : {c} ∪ (q.2 \ {c}) = q.2 := by
+                          rw [Finset.union_sdiff_of_subset]
+                          exact Finset.singleton_subset_iff.mpr hc_in_q2
+                        dsimp [Combinatorial_Support] at hq_sub_b2
+                        simpa [h_union, hc_in_q2] using
+                          ((Finset.subset_union_right : q.2 ⊆ q.1 ∪ q.2).trans hq_sub_b2)
                     have hnempty: p.1.Nonempty ∧ p.2.Nonempty := by
                       constructor
                       · exact Finset.singleton_nonempty c
                       · -- q.2 \ {c} is nonempty since q.2.card ≥ 2
                         dsimp [p]
                         have : (q.2 \ {c}).card = q.2.card - 1 := by
-                          rw [Finset.card_sdiff]
-                          · simp [Finset.card_singleton]
-                          · exact Finset.singleton_subset_iff.mpr hc_in_q2
+                          rw [Finset.card_sdiff_of_subset (Finset.singleton_subset_iff.mpr hc_in_q2)]
+                          simp [Finset.card_singleton]
                         have card_pos : (q.2 \ {c}).card > 0 := by
                           rw [this]
                           have : q.2.card ≥ 2 := hq2_card_ge_2
@@ -3201,9 +3199,8 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                       -- Case: Combinatorial_Support b ⊆ q.1
                       have spsbdisj:   Disjoint (Combinatorial_Support p)  (Combinatorial_Support b) := by
                         have hp_eq_q2 : Combinatorial_Support p = q.2 := by
-                          dsimp [Combinatorial_Support, p]
-                          rw [Finset.union_sdiff_of_subset]
-                          exact Finset.singleton_subset_iff.mpr hc_in_q2
+                           dsimp [Combinatorial_Support, p]
+                           simp [hc_in_q2]
                         rw [hp_eq_q2]
                         have hq_disj : Disjoint q.1 q.2 := T.DisjointComponents q hq
                         exact Finset.disjoint_of_subset_right hb_sub_q1 hq_disj.symm
@@ -3288,8 +3285,7 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                 have hr_intersect_q2 : Combinatorial_Support r ∩ q.2 ≠ ∅ := by
                   have p_union_eq : p.1 ∪ p.2 = q.2 := by
                     dsimp [p]
-                    rw [Finset.union_sdiff_of_subset]
-                    exact Finset.singleton_subset_iff.mpr hc_in_q2
+                    simp [hc_in_q2]
                   rwa [← p_union_eq]
                 -- Use inclusion_q1orq2 to get either Combinatorial_Support r ⊆ q.1 or Combinatorial_Support r ⊆ q.2
                 have hr_cases := inclusion_q1orq2 hr hq ⟨hr_neq, hr_subset⟩
@@ -3344,10 +3340,8 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
                   exact hq_minimal ⟨s, hs, hs_neq_q, hc_in_s, this⟩
             have p1p2q:  p.1 ∪ p.2 ∈ pairToFinset q := by
               dsimp [pairToFinset, p]
-              have h_union : {c} ∪ (q.2 \ {c}) = q.2 := by
-                rw [Finset.union_sdiff_of_subset]
-                exact Finset.singleton_subset_iff.mpr hc_in_q2
-              rw [h_union]
+              rw [Finset.sdiff_singleton_eq_erase]
+              rw [Finset.insert_erase hc_in_q2]
               exact Finset.mem_insert_of_mem (Finset.mem_singleton_self q.2)
 
             exact ⟨p1p2q, hfinal2⟩
@@ -3373,9 +3367,11 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
             · -- q.2 \ {c} is nonempty since q.2.card ≥ 2
               dsimp [p] -- Unfold p.2 to q.2 \ {c}
               have : (q.2 \ {c}).card = q.2.card - 1 := by
-                rw [Finset.card_sdiff]
-                · simp [Finset.card_singleton]
-                · exact Finset.singleton_subset_iff.mpr hc_in_q2
+                have hsubset : ({c} : Finset _) ⊆ q.2 :=
+                  Finset.singleton_subset_iff.mpr hc_in_q2
+                have hcard : (q.2 \ {c}).card = q.2.card - ({c} : Finset _).card :=
+                    Finset.card_sdiff_of_subset hsubset
+                simpa using hcard
               have card_pos : (q.2 \ {c}).card > 0 := by
                 rw [this]
                 have : q.2.card ≥ 2 := hq2_card_ge_2
