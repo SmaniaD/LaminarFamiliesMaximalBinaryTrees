@@ -3,7 +3,7 @@
 --[[require]]
 --name = "mathlib"
 --scope = "leanprover-community"
---rev = "v4.22.0-rc2"
+--rev = "v4.30.0-rc2"
 
 import Mathlib.MeasureTheory.Measure.MeasureSpace
 import Mathlib.Data.Real.Basic
