@@ -1,13 +1,9 @@
 name = "LaminarFamiliesMaximalBinaryTrees"
 version = "0.1.0"
-defaultTargets = ["laminarfamiliesmaximalbinarytrees"]
+defaultTargets = ["LaminarFamiliesMaximalBinaryTrees"]
 
 [[lean_lib]]
 name = "LaminarFamiliesMaximalBinaryTrees"
-
-[[lean_exe]]
-name = "laminarfamiliesmaximalbinarytrees"
-root = "LaminarFamiliesMaximalBinaryTrees"
 
 [[require]]
 name  = "mathlib"
