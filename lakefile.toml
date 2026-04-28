@@ -7,7 +7,7 @@ name = "LaminarFamiliesMaximalBinaryTrees"
 
 [[lean_exe]]
 name = "laminarfamiliesmaximalbinarytrees"
-root = "Main"
+root = "MainLaminarFamiliesMaximalBinaryTrees"
 
 [[require]]
 name  = "mathlib"
