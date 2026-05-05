@@ -1334,7 +1334,7 @@ lemma chain_step_parent_support_subset_or_eq {α : Type*} [DecidableEq α]
         · subst hpq
           exact subset_rfl
 
-/-- In any valid chain from `T.Root` to `p`, the entries of the chain are exactly
+/-- For any valid chain from `T.Root` to `p`, the entries of the chain are exactly
     the branches whose support contains the support of `p`-/
 theorem chain_from_root_exactly_support_containers {α : Type*} [DecidableEq α]
     {T : BinaryTreeWithRootandTops α} {p q : Finset α × Finset α}
