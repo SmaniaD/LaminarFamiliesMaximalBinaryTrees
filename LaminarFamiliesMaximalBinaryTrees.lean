@@ -1239,6 +1239,171 @@ lemma inclusion_support_finner_4 {α : Type*}[DecidableEq α]
             exact Or.inr hp_eq_q
 
 
+/-- Along a valid chain, the support of the endpoint is contained in the
+    support of every branch appearing earlier in the chain. -/
+lemma chain_endpoint_support_subset {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
+    {n : ℕ} {c : ℕ → Finset α × Finset α}
+    (hcn : c n = p)
+    (hstep : ∀ i < n,
+        Combinatorial_Support (c (i + 1)) = (c i).1 ∨
+        Combinatorial_Support (c (i + 1)) = (c i).2) :
+    ∀ i ≤ n, Combinatorial_Support p ⊆ Combinatorial_Support (c i) := by
+  induction' n with n ih generalizing p c
+  · intro i hi
+    have hi0 : i = 0 := Nat.eq_zero_of_le_zero hi
+    subst hi0
+    simp [hcn]
+  · intro i hi
+    by_cases hin : i = n + 1
+    · subst hin
+      simp [hcn]
+    · have hi_prefix : i ≤ n := by omega
+      have hlast := hstep n (Nat.lt_succ_self n)
+      have hp_subset_parent :
+          Combinatorial_Support p ⊆ Combinatorial_Support (c n) := by
+        rcases hlast with hleft | hright
+        · intro x hx
+          have hx_child : x ∈ Combinatorial_Support (c (n + 1)) := by
+            simpa [hcn] using hx
+          dsimp [Combinatorial_Support]
+          exact Finset.mem_union_left (c n).2 (by simpa [hleft] using hx_child)
+        · intro x hx
+          have hx_child : x ∈ Combinatorial_Support (c (n + 1)) := by
+            simpa [hcn] using hx
+          dsimp [Combinatorial_Support]
+          exact Finset.mem_union_right (c n).1 (by simpa [hright] using hx_child)
+      have hprefix_step :
+          ∀ j < n,
+            Combinatorial_Support (c (j + 1)) = (c j).1 ∨
+            Combinatorial_Support (c (j + 1)) = (c j).2 := by
+        intro j hj
+        exact hstep j (by omega)
+      have hparent_subset_i :
+          Combinatorial_Support (c n) ⊆ Combinatorial_Support (c i) :=
+        ih (p := c n) (c := c) rfl hprefix_step i hi_prefix
+      exact hp_subset_parent.trans hparent_subset_i
+
+/-- If `q` contains the support of the child endpoint of a chain step, then
+    either `q` is that endpoint, or it also contains the support of the parent. -/
+lemma chain_step_parent_support_subset_or_eq {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {parent child q : Finset α × Finset α}
+    (hparent : parent ∈ T.Branches) (hchild : child ∈ T.Branches)
+    (hq : q ∈ T.Branches)
+    (hstep :
+      Combinatorial_Support child = parent.1 ∨
+      Combinatorial_Support child = parent.2)
+    (hsub : Combinatorial_Support child ⊆ Combinatorial_Support q) :
+    child = q ∨ Combinatorial_Support parent ⊆ Combinatorial_Support q := by
+  by_cases hcq : child = q
+  · exact Or.inl hcq
+  · have hchild_sub_q_component :
+        Combinatorial_Support child ⊆ q.1 ∨
+        Combinatorial_Support child ⊆ q.2 :=
+      inclusion_q1orq2 hchild hq ⟨hcq, hsub⟩
+    right
+    rcases hstep with hleft | hright
+    · rcases hchild_sub_q_component with hsubq1 | hsubq2
+      · have hparent1_sub_q1 : parent.1 ⊆ q.1 := by
+          intro x hx
+          exact hsubq1 (by simpa [hleft] using hx)
+        rcases inclusion_support_finner_1 ⟨hparent, hq⟩ hparent1_sub_q1 with hs | hpq
+        · exact hs.trans Finset.subset_union_left
+        · subst hpq
+          exact subset_rfl
+      · have hparent1_sub_q2 : parent.1 ⊆ q.2 := by
+          intro x hx
+          exact hsubq2 (by simpa [hleft] using hx)
+        rcases inclusion_support_finner_2 ⟨hparent, hq⟩ hparent1_sub_q2 with hs | hpq
+        · exact hs.trans Finset.subset_union_right
+        · subst hpq
+          exact subset_rfl
+    · rcases hchild_sub_q_component with hsubq1 | hsubq2
+      · have hparent2_sub_q1 : parent.2 ⊆ q.1 := by
+          intro x hx
+          exact hsubq1 (by simpa [hright] using hx)
+        rcases inclusion_support_finner_3 ⟨hparent, hq⟩ hparent2_sub_q1 with hs | hpq
+        · exact hs.trans Finset.subset_union_left
+        · subst hpq
+          exact subset_rfl
+      · have hparent2_sub_q2 : parent.2 ⊆ q.2 := by
+          intro x hx
+          exact hsubq2 (by simpa [hright] using hx)
+        rcases inclusion_support_finner_4 ⟨hparent, hq⟩ hparent2_sub_q2 with hs | hpq
+        · exact hs.trans Finset.subset_union_right
+        · subst hpq
+          exact subset_rfl
+
+/-- In any valid chain from `T.Root` to `p`, the entries of the chain are exactly
+    the branches whose support contains the support of `p`. -/
+theorem chain_from_root_exactly_support_containers {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p q : Finset α × Finset α}
+    (hp : p ∈ T.Branches) (hq : q ∈ T.Branches)
+    {n : ℕ} {c : ℕ → Finset α × Finset α}
+    (hc0 : c 0 = T.Root) (hcn : c n = p)
+    (hcmem : ∀ i ≤ n, c i ∈ T.Branches)
+    (hcstep : ∀ i < n,
+        Combinatorial_Support (c (i + 1)) = (c i).1 ∨
+        Combinatorial_Support (c (i + 1)) = (c i).2) :
+    (∃ i ≤ n, c i = q) ↔
+      Combinatorial_Support p ⊆ Combinatorial_Support q := by
+  constructor
+  · rintro ⟨i, hi, hiq⟩
+    simpa [hiq] using chain_endpoint_support_subset (T := T) hcn hcstep i hi
+  · intro hsub
+    induction' n with n ih generalizing p c
+    · have hp_root : p = T.Root := by simpa [hc0] using hcn.symm
+      have hq_support_eq_root :
+          Combinatorial_Support q = Combinatorial_Support T.Root := by
+        apply Finset.Subset.antisymm
+        · exact support_subset_root_support (T := T) hq
+        · simpa [hp_root] using hsub
+      have hq_root : q = T.Root :=
+        (eq_iff_eq_support hq T.RootinBranches).mpr hq_support_eq_root
+      exact ⟨0, le_rfl, by simpa [hc0, hq_root]⟩
+    · by_cases hpq : p = q
+      · exact ⟨n + 1, le_rfl, by simpa [hcn, hpq]⟩
+      · let parent := c n
+        have hparent_mem : parent ∈ T.Branches := hcmem n (by omega)
+        have hchild_mem : c (n + 1) ∈ T.Branches := hcmem (n + 1) le_rfl
+        have hstep_last := hcstep n (Nat.lt_succ_self n)
+        have hparent_sub :
+            Combinatorial_Support parent ⊆ Combinatorial_Support q := by
+          have hstep_p :
+              Combinatorial_Support p = parent.1 ∨
+              Combinatorial_Support p = parent.2 := by
+            simpa [parent, hcn] using hstep_last
+          have hres := chain_step_parent_support_subset_or_eq
+              (T := T) hparent_mem hp hq hstep_p hsub
+          rcases hres with hpq' | hparent_sub
+          · exact (hpq hpq').elim
+          · exact hparent_sub
+        have hprefix_mem : ∀ i ≤ n, c i ∈ T.Branches := by
+          intro i hi
+          exact hcmem i (by omega)
+        have hprefix_step :
+            ∀ i < n,
+              Combinatorial_Support (c (i + 1)) = (c i).1 ∨
+              Combinatorial_Support (c (i + 1)) = (c i).2 := by
+          intro i hi
+          exact hcstep i (by omega)
+        have happ := ih (p := parent) (c := c)
+          hparent_mem hc0 rfl hprefix_mem hprefix_step hparent_sub
+        rcases happ with ⟨i, hi, hiq⟩
+        exact ⟨i, by omega, hiq⟩
+
+/-- The canonical chain `ChainToRoot hp` lists exactly the branches whose support
+    contains the support of `p`. -/
+theorem ChainToRoot_exactly_support_containers {α : Type*} [DecidableEq α]
+    {T : BinaryTreeWithRootandTops α} {p q : Finset α × Finset α}
+    (hp : p ∈ T.Branches) (hq : q ∈ T.Branches) :
+    (∃ i ≤ chainLength hp, ChainToRoot hp i = q) ↔
+      Combinatorial_Support p ⊆ Combinatorial_Support q := by
+  exact chain_from_root_exactly_support_containers hp hq
+    (ChainToRoot_zero hp) (ChainToRoot_end hp)
+    (fun i hi => ChainToRoot_mem hp hi) (fun i hi => ChainToRoot_step hp hi)
+
+
 lemma maximal_compact_inside_p1 {α : Type*}[DecidableEq α]
   {T: BinaryTreeWithRootandTops α} {p : Finset α × Finset α} (h1: p ∈ T.Branches)
   (h_ex : ∃ q ∈ T.Branches,  Combinatorial_Support q ⊆ p.1) :
