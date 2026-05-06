@@ -3672,3 +3672,25 @@ theorem exists_tree_childs_eq_C_and_all_childs_in_Tops_of_card_ge_two
   -- Therefore C = T.Tops
   have h_eq : C = T.Tops := Finset.Subset.antisymm h_subset h_tops_subset
   exact ⟨T, hT_eq, h_eq⟩
+
+
+
+
+lemma exists_branch_support_eq_left_of_two_le_card
+    {T : BinaryTreeWithRootandTops (Set α)}
+    {p : Finset (Set α) × Finset (Set α)}
+    (hp : p ∈ T.Branches)
+    (hcard : 2 ≤ p.1.card)
+    (childs_eq_tops: T.Childs = T.Tops) :
+    ∃ q ∈ T.Branches, Combinatorial_Support q = p.1 := by
+  sorry
+
+
+lemma exists_branch_support_eq_right_of_two_le_card
+    {T : BinaryTreeWithRootandTops (Set α)}
+    {p : Finset (Set α) × Finset (Set α)}
+    (hp : p ∈ T.Branches)
+    (hcard : 2 ≤ p.2.card)
+    (childs_eq_tops: T.Childs = T.Tops) :
+    ∃ q ∈ T.Branches, Combinatorial_Support q = p.2 := by
+  sorry
