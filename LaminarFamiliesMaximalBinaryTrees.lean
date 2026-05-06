@@ -3683,7 +3683,55 @@ lemma exists_branch_support_eq_left_of_two_le_card
     (hcard : 2 ≤ p.1.card)
     (childs_eq_tops: T.Childs = T.Tops) :
     ∃ q ∈ T.Branches, Combinatorial_Support q = p.1 := by
-  sorry
+  have hp1_pos : 0 < p.1.card := lt_of_lt_of_le (by decide : 0 < 2) hcard
+  obtain ⟨x, hx⟩ := Finset.card_pos.mp hp1_pos
+  have hx_childs : x ∈ T.Childs := (T.TreeStructureChilds p hp).1 hx
+  have hx_tops : x ∈ T.Tops := by simpa [childs_eq_tops] using hx_childs
+  obtain ⟨q, hq, hx_singleton⟩ := T.TopsareTops x hx_tops
+  have hx_in_qsupport : x ∈ Combinatorial_Support q := singleton_in_support q hx_singleton
+  have hq_ne_p : q ≠ p := by
+    intro hqp
+    subst hqp
+    have hx_cases : ({x} : Finset (Set α)) = p.1 ∨ ({x} : Finset (Set α)) = p.2 := by
+      dsimp [pairToFinset] at hx_singleton
+      simpa [Finset.mem_insert, Finset.mem_singleton] using hx_singleton
+    cases hx_cases with
+    | inl hleft =>
+        have hp1_card_one : p.1.card = 1 := by simpa [hleft]
+        linarith
+    | inr hright =>
+        have hx_in_p2 : x ∈ p.2 := by
+          rw [← hright]
+          exact Finset.mem_singleton_self x
+        exact (Finset.disjoint_left.mp (T.DisjointComponents p hp) hx hx_in_p2).elim
+
+  have hq_sub_p1 : Combinatorial_Support q ⊆ p.1 := by
+    have hcases := T.SupportProperty q hq p hp hq_ne_p
+    cases hcases with
+    | inl hdisj =>
+        exfalso
+        have hx_in_psupport : x ∈ Combinatorial_Support p := Finset.mem_union_left p.2 hx
+        exact Finset.disjoint_left.mp hdisj hx_in_qsupport hx_in_psupport
+    | inr hrest =>
+        cases hrest with
+        | inl hq_sub_p1 =>
+            exact hq_sub_p1
+        | inr hrest2 =>
+            cases hrest2 with
+            | inl hq_sub_p2 =>
+                exfalso
+                have hx_in_p2 : x ∈ p.2 := hq_sub_p2 hx_in_qsupport
+                exact Finset.disjoint_left.mp (T.DisjointComponents p hp) hx hx_in_p2
+            | inr hrest3 =>
+                cases hrest3 with
+                | inl hp_sub_q1 =>
+                    exfalso
+                    exact (support_not_subset_components hp).1 hp_sub_q1
+                | inr hp_sub_q2 =>
+                    exfalso
+                    exact (support_not_subset_components hp).2 hp_sub_q2
+
+  exact maximal_compact_inside_p1 hp ⟨q, hq, hq_sub_p1⟩
 
 
 lemma exists_branch_support_eq_right_of_two_le_card
