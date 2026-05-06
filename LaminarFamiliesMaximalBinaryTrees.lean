@@ -397,6 +397,9 @@ noncomputable def chainLength {α : Type*} [DecidableEq α]
     (hp : p ∈ T.Branches) : ℕ :=
   (exists_chain_from_root hp).choose
 
+
+
+
 /-- The unique chain from `T.Root` to branch `p`. -/
 noncomputable def ChainToRoot {α : Type*} [DecidableEq α]
     {T : BinaryTreeWithRootandTops α} {p : Finset α × Finset α}
