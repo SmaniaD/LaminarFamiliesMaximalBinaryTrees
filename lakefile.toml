@@ -2,6 +2,9 @@ name = "LaminarFamiliesMaximalBinaryTrees"
 version = "0.1.0"
 defaultTargets = ["LaminarFamiliesMaximalBinaryTrees"]
 
+releaseRepo = "https://github.com/SmaniaD/LaminarFamiliesMaximalBinaryTrees"
+preferReleaseBuild = true
+
 [[lean_lib]]
 name = "LaminarFamiliesMaximalBinaryTrees"
 
